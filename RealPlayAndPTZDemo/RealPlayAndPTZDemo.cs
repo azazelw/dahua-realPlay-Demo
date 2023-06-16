@@ -131,50 +131,69 @@ namespace RealPlayAndPTZDemo
         //总之，这些回调方法可以处理与连接、重新连接、实时数据和快照相关的各种事件和操作
         //它们允许你更新UI，执行特定任务，或者响应由网络客户端触发的特定事件
         private void port_textBox_KeyPress(object sender, KeyPressEventArgs e)
+        //port_textBox_KeyPress函数是一个文本框控件port_textBox的KeyPress事件处理程序，它会在文本框获得焦点时按下某个键时执行
+        //这个方法接收两个参数:sender，它是触发事件的对象(在这个例子中是port_textBox控件)，e，它是KeyPressEventArgs类的一个实例，包含了按键事件的信息
         {
             if (e.KeyChar != 8 && !Char.IsDigit(e.KeyChar))
+            //这个函数中的代码会检查输入的字符(e.c keychar)，以确定是否允许输入
+            //条件e.KeyChar != 8检查输入的字符是否不是退格键。退格键(ASCII值为8)通常用于删除文本输入字段中的字符
+            //条件!Char.IsDigit(e.KeyChar)检查输入的字符是否不是数字。Char.IsDigit方法用于确定一个字符是否为数字
             {
                 e.Handled = true;
+                //如果有一个条件为真，就意味着输入的字符不是有效的数字或是退格键
+                //在这种情况下，e.Handled被设置为true。这表示事件处理程序已经处理了按键事件，字符将不会显示在文本框中
             }
         }
+        //总之，port_textBox_KeyPress方法确保只有数字和退格键可以输入到port_textBox控件
+        //它阻止输入任何其他字符，从而强制输入端口号的有效数值
 
         private void login_button_Click(object sender, EventArgs e)
+        //login_button_Click方法是一个事件处理程序，用于处理按钮控件login_button的单击事件，处理登录和注销操作。它检查当前登录状态，根据该状态执行适当的操作，并相应地更新UI。
         {
             if (IntPtr.Zero == m_LoginID)
+            //这个函数以一个if语句开始，检查m_LoginID字段是否等于IntPtr.Zero。这种检查用于确定用户当前是否已登录
+            //如果m_LoginID等于IntPtr.Zero，表示用户没有登录，该方法继续解析并验证在port_textBox中输入的端口号
             {
                 ushort port = 0;
                 try
                 {
-                    port = Convert.ToUInt16(port_textBox.Text.Trim());
+                    port = Convert.ToUInt16(port_textBox.Text.Trim());  //它尝试使用convert将port_textBox的文本值转换为ushort，并将其赋给port变量
                 }
                 catch
                 {
-                    MessageBox.Show("Input port error(输入端口错误)!");
-                    return;
+                    MessageBox.Show("Input port error(输入端口错误)!"); //如果转换失败，则捕获异常，并显示一个消息框，通知用户输入端口错误
+                    return;          //函数返回，阻止了进一步的执行。
                 }
                 m_DeviceInfo = new NET_DEVICEINFO_Ex();
+                //如果端口号转换成功，该函数继续创建一个NET_DEVICEINFO_Ex类的新实例，并将其分配给m_DeviceInfo字段
                 m_LoginID = NETClient.LoginWithHighLevelSecurity(ip_textBox.Text.Trim(), port, name_textBox.Text.Trim(), pwd_textBox.Text.Trim(), EM_LOGIN_SPAC_CAP_TYPE.TCP, IntPtr.Zero, ref m_DeviceInfo);
+                //NETClient.LoginWithHighLevelSecurity函数被调用来初始化登录过程
+                //这个函数尝试建立连接，如果成功返回登录ID (IntPtr)。
                 if (IntPtr.Zero == m_LoginID)
                 {
                     MessageBox.Show(this, NETClient.GetLastError());
-                    return;
+                    //如果登录过程失败，IntPtr.Zero == m_LoginID了，将显示一个消息框，显示从NETClient.GetLastError获得的最后一个错误消息
+                    return;         //函数返回，阻止了进一步的执行。
                 }
-                LoginUI();
+                LoginUI();    //如果登录过程成功，则调用LoginUI函数，它负责执行特定于已登录状态的UI更新
             }
-            else
+            else     //如果m_LoginID不等于IntPtr.Zero，表示用户已经登录
             {
-                bool result = NETClient.Logout(m_LoginID);
+                bool result = NETClient.Logout(m_LoginID);   //该函数继续调用NETClient.Logout函数注销用户
+                                                             //它接受m_LoginID作为参数，并返回一个布尔值，表示注销操作的结果
                 if (!result)
+                //如果注销操作失败(!result)，会弹出一个提示框，显示上次从NETClient.GetLastError获取的错误信息
                 {
                     MessageBox.Show(this, NETClient.GetLastError());
-                    return;
+                    return;         //函数返回，阻止了进一步的执行。
                 }
-                m_LoginID = IntPtr.Zero;
-                InitOrLogoutUI();
+                m_LoginID = IntPtr.Zero;    //如果注销成功，则m_LoginID设置回IntPtr.Zero，表示用户已经注销
+                InitOrLogoutUI();   //调用InitOrLogoutUI函数来执行特定于注销状态的UI更新
             }
         }
 
         private void start_realplay_button_Click(object sender, EventArgs e)
+        //start_realplay_button_Click函数是一个事件处理程序，用于处理按钮控件start_realplay_button的单击事件
         {
             if (IntPtr.Zero == m_RealPlayID)
             {
