@@ -111,7 +111,7 @@ namespace RealPlayAndPTZDemo
             {
                 Directory.CreateDirectory(path);
             }
-            //该方法检查编码类型是否为JPEG(通过EncodeType == 10表示)，然后继续将快照保存到文件中
+            //该函数检查编码类型是否为JPEG(通过EncodeType == 10表示)，然后继续将快照保存到文件中
             if (EncodeType == 10) //.jpg
             {
                 DateTime now = DateTime.Now;
@@ -128,31 +128,31 @@ namespace RealPlayAndPTZDemo
             }
         }
         #endregion
-        //总之，这些回调方法可以处理与连接、重新连接、实时数据和快照相关的各种事件和操作
+        //总之，这些回调函数可以处理与连接、重新连接、实时数据和快照相关的各种事件和操作
         //它们允许你更新UI，执行特定任务，或者响应由网络客户端触发的特定事件
         private void port_textBox_KeyPress(object sender, KeyPressEventArgs e)
         //port_textBox_KeyPress函数是一个文本框控件port_textBox的KeyPress事件处理程序，它会在文本框获得焦点时按下某个键时执行
-        //这个方法接收两个参数:sender，它是触发事件的对象(在这个例子中是port_textBox控件)，e，它是KeyPressEventArgs类的一个实例，包含了按键事件的信息
+        //这个函数接收两个参数:sender，它是触发事件的对象(在这个例子中是port_textBox控件)，e，它是KeyPressEventArgs类的一个实例，包含了按键事件的信息
         {
             if (e.KeyChar != 8 && !Char.IsDigit(e.KeyChar))
             //这个函数中的代码会检查输入的字符(e.c keychar)，以确定是否允许输入
             //条件e.KeyChar != 8检查输入的字符是否不是退格键。退格键(ASCII值为8)通常用于删除文本输入字段中的字符
-            //条件!Char.IsDigit(e.KeyChar)检查输入的字符是否不是数字。Char.IsDigit方法用于确定一个字符是否为数字
+            //条件!Char.IsDigit(e.KeyChar)检查输入的字符是否不是数字。Char.IsDigit函数用于确定一个字符是否为数字
             {
                 e.Handled = true;
                 //如果有一个条件为真，就意味着输入的字符不是有效的数字或是退格键
                 //在这种情况下，e.Handled被设置为true。这表示事件处理程序已经处理了按键事件，字符将不会显示在文本框中
             }
         }
-        //总之，port_textBox_KeyPress方法确保只有数字和退格键可以输入到port_textBox控件
+        //总之，port_textBox_KeyPress函数确保只有数字和退格键可以输入到port_textBox控件
         //它阻止输入任何其他字符，从而强制输入端口号的有效数值
 
         private void login_button_Click(object sender, EventArgs e)
-        //login_button_Click方法是一个事件处理程序，用于处理按钮控件login_button的单击事件，处理登录和注销操作。它检查当前登录状态，根据该状态执行适当的操作，并相应地更新UI。
+        //login_button_Click函数是一个事件处理程序，用于处理按钮控件login_button的单击事件，处理登录和注销操作。它检查当前登录状态，根据该状态执行适当的操作，并相应地更新UI。
         {
             if (IntPtr.Zero == m_LoginID)
             //这个函数以一个if语句开始，检查m_LoginID字段是否等于IntPtr.Zero。这种检查用于确定用户当前是否已登录
-            //如果m_LoginID等于IntPtr.Zero，表示用户没有登录，该方法继续解析并验证在port_textBox中输入的端口号
+            //如果m_LoginID等于IntPtr.Zero，表示用户没有登录，该函数继续解析并验证在port_textBox中输入的端口号
             {
                 ushort port = 0;
                 try
@@ -193,51 +193,64 @@ namespace RealPlayAndPTZDemo
         }
 
         private void start_realplay_button_Click(object sender, EventArgs e)
-        //start_realplay_button_Click函数是一个事件处理程序，用于处理按钮控件start_realplay_button的单击事件
+        //start_realplay_button_Click函数是一个事件处理程序，用于处理按钮控件start_realplay_button的单击事件，处理实时预览的开始和停止
+        //检查预览的当前状态，根据该状态执行适当的操作，并相应地更新UI
         {
-            if (IntPtr.Zero == m_RealPlayID)
+            if (IntPtr.Zero == m_RealPlayID)    //检查m_RealPlayID字段是否等于IntPtr.Zero
+                                                //此检查用于确定实时预览当前是否处于活动状态
             {
                 // realplay 预览
+                //如果m_RealPlayID等于IntPtr.Zero，意味着实时预览没有被激活
                 EM_RealPlayType type;
                 if(streamtype_comboBox.SelectedIndex == 0)
+                //根据streamtype_comboBox控件选择的索引来确定EM_RealPlayType
                 {
                     type = EM_RealPlayType.Realplay;
                 }
                 else
+                //如果选择的索引为0，它将type设置为EM_RealPlayType.Realplay，否则将其设置为EM_RealPlayType.Realplay_1
                 {
                     type = EM_RealPlayType.Realplay_1;
                 }
+
                 m_RealPlayID = NETClient.RealPlay(m_LoginID, channel_comboBox.SelectedIndex, realplay_pictureBox.Handle, type);
+                //NETClient.RealPlay函数被调用以开始实时预览！
+                //它需要一些参数，比如登录ID (m_LoginID)、选定的通道索引、图片框控件的句柄(realplay_pictureBox.Handle)和EM_RealPlayType。它返回一个实时播放ID (m_RealPlayID)。
+                
                 if (IntPtr.Zero == m_RealPlayID)
+                //如果实时预览失败(IntPtr.Zero == m_RealPlayID)，将显示一个消息框，显示从NETClient获得的最后一个错误消息
                 {
                     MessageBox.Show(this, NETClient.GetLastError());
-                    return;
+                    return;      //return阻止进一步的执行
                 }
+
                 NETClient.SetRealDataCallBack(m_RealPlayID, m_RealDataCallBackEx2, IntPtr.Zero, EM_REALDATA_FLAG.DATA_WITH_FRAME_INFO | EM_REALDATA_FLAG.PCM_AUDIO_DATA | EM_REALDATA_FLAG.RAW_DATA | EM_REALDATA_FLAG.YUV_DATA);
+                //如果实时预览成功，则 NETClient.SetRealDataCallBack函数设置实时的数据回调
                 start_realplay_button.Text = "StopReal(停止预览)";
                 channel_comboBox.Enabled = false;
                 streamtype_comboBox.Enabled = false;
                 save_button.Enabled = true;
+                //start_realplay_button的文本被更改为"StopReal(停止预览)"。channel_comboBox和streamtype_comboBox控件被禁用，而save_button被启用
             }
-            else
+            else    //如果m_RealPlayID不等于IntPtr.Zero，表示当前正在激活实时预览。该函数继续调用NETClient.StopRealPlay函数停止实时预览
             {
                 // stop realplay 关闭预览
-                bool ret = NETClient.StopRealPlay(m_RealPlayID);
-                if (!ret)
+                bool ret = NETClient.StopRealPlay(m_RealPlayID);   //它接受实时播放ID作为参数，并返回一个表示操作结果的布尔值
+                if (!ret)    //如果停止实时预览失败(!ret)，会弹出一个消息框，显示从NETClient获取的最后一个错误消息
                 {
                     MessageBox.Show(this, NETClient.GetLastError());
                     return;
                 }
-                m_RealPlayID = IntPtr.Zero;
+                m_RealPlayID = IntPtr.Zero;   //如果停止实时预览成功，m_RealPlayID被设置回IntPtr.Zero，表示实时预览停止
                 start_realplay_button.Text = "StartReal(开始预览)";
-                realplay_pictureBox.Refresh();
+                realplay_pictureBox.Refresh();   //刷新realplay_pictureBox，清除显示的图像
                 channel_comboBox.Enabled = true;
                 streamtype_comboBox.Enabled = true;
-                save_button.Enabled = false;
+                save_button.Enabled = false;   //channel_comboBox和streamtype_comboBox控件被启用，而save_button被禁用
                 if (m_IsInSave)
                 {
                     m_IsInSave = false;
-                    save_button.Text = "StartSave(开始保存)";
+                    save_button.Text = "StartSave(开始保存)";   //如果用户在保存预览的过程中，m_IsInSave标志被重置，save_button的文本被更改为"StartSave(开始保存)"
                 }
             }
         }
@@ -557,10 +570,11 @@ namespace RealPlayAndPTZDemo
         }
         #endregion
 
-        protected override void OnClosed(EventArgs e)
+        protected override void OnClosed(EventArgs e)  //OnClosed方法是一个被覆盖的方法，在关闭表单时调用。它提供了在关闭表单之前执行清理或其他操作的机会。
         {
             base.OnClosed(e);
-            NETClient.Cleanup();
+            NETClient.Cleanup();   //释放任何已分配的资源并执行必要的清理任务
+            //调用时，应用程序确保在关闭表单时正确地清理NETSDKCS库，防止资源泄漏或意外行为
         }
     }
 }
