@@ -342,7 +342,7 @@ namespace RealPlayAndPTZDemo
         }
 
         #region PTZ Control 云台控制
-
+        //云台控制为控制摄像头对焦等功能，对单纯的调画面来说无用
         private void step_comboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             SpeedValue = step_comboBox.SelectedIndex + 1;
